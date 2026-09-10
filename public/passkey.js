@@ -154,36 +154,45 @@ async function login(container) {
     });
 }
 
-function init() {
-    const containers = document.querySelectorAll('[data-passkey]');
-    if (containers.length === 0) {
+/*
+ * One delegated listener on the document, bound as soon as the module is evaluated.
+ *
+ * Binding on the buttons themselves ties the page to the DOM present at that instant, and a
+ * library that replaces the body between navigations (Turbo, and any morphing equivalent) leaves
+ * the new buttons unbound: the module is already in the module map, so it is never evaluated a
+ * second time. Clicking then does nothing at all, without an error anywhere. Delegation holds
+ * whatever replaces the markup.
+ */
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-passkey-action]');
+    const container = button?.closest('[data-passkey]');
+
+    if (!container) {
         return;
     }
 
-    // Hide passkey affordances on browsers without WebAuthn support.
-    if (!browserSupportsWebAuthn()) {
-        containers.forEach((container) => {
-            container.hidden = true;
-        });
+    event.preventDefault();
+
+    if ('register' === button.dataset.passkeyAction) {
+        register(container);
+    } else if ('login' === button.dataset.passkeyAction) {
+        login(container);
+    }
+});
+
+// Hide passkey affordances on browsers without WebAuthn support.
+function hideUnsupported() {
+    if (browserSupportsWebAuthn()) {
         return;
     }
 
-    containers.forEach((container) => {
-        container.querySelectorAll('[data-passkey-action]').forEach((button) => {
-            button.addEventListener('click', (event) => {
-                event.preventDefault();
-                if ('register' === button.dataset.passkeyAction) {
-                    register(container);
-                } else if ('login' === button.dataset.passkeyAction) {
-                    login(container);
-                }
-            });
-        });
+    document.querySelectorAll('[data-passkey]').forEach((container) => {
+        container.hidden = true;
     });
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', hideUnsupported);
 } else {
-    init();
+    hideUnsupported();
 }
