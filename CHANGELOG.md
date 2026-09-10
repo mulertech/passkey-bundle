@@ -1,5 +1,39 @@
 # Release notes for passkey-bundle
 
+## v2.0.0 - 2026-09-10
+
+### Breaking
+
+- `register_options_url` and `register_url` are now required. The management page reads the ceremony endpoints from the configuration instead of guessing them, so a path that does not match `webauthn.controllers.creation` is refused when the container compiles rather than answering `404` after the browser has already accepted the fingerprint.
+
+### Upgrading
+
+Declare both paths once and feed them to the two bundles:
+
+```yaml
+# config/packages/mulertech_passkey.yaml
+parameters:
+    app.passkey_register_options_path: /passkey/register/options
+    app.passkey_register_path: /passkey/register
+
+mulertech_passkey:
+    user_class: App\Entity\User
+    register_options_url: '%app.passkey_register_options_path%'
+    register_url: '%app.passkey_register_path%'
+
+```
+```yaml
+# config/packages/webauthn.yaml
+webauthn:
+    controllers:
+        creation:
+            default:
+                options_path: '%app.passkey_register_options_path%'
+                result_path: '%app.passkey_register_path%'
+
+```
+The passkey_register_options_url and passkey_register_url Twig globals are no longer read: remove them.
+
 ## v1.0.0 - 2026-09-10
 
 - Added: passkey (WebAuthn) sign-in for a Symfony application — the credential entity and its two repositories, the user handle, the key management page, and the ceremony asset.
