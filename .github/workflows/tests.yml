@@ -22,6 +22,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          # The repository suite runs against an in-memory SQLite schema. Windows runners ship no
+          # pdo_sqlite unless it is asked for, and the failure only shows up there.
+          extensions: pdo_sqlite
           coverage: none
 
       - name: Install dependencies
@@ -56,6 +59,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          # The repository suite runs against an in-memory SQLite schema. Windows runners ship no
+          # pdo_sqlite unless it is asked for, and the failure only shows up there.
+          extensions: pdo_sqlite
           coverage: none
 
       - name: Install dependencies
@@ -89,6 +95,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
+          extensions: pdo_sqlite
           coverage: xdebug
 
       - name: Install dependencies
