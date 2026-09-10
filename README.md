@@ -66,9 +66,20 @@ time the user registers a key.
 
 ```yaml
 # config/packages/mulertech_passkey.yaml
+parameters:
+    app.passkey_register_options_path: /passkey/register/options
+    app.passkey_register_path: /passkey/register
+
 mulertech_passkey:
     user_class: App\Entity\User
+    register_options_url: '%app.passkey_register_options_path%'
+    register_url: '%app.passkey_register_path%'
 ```
+
+The two ceremony paths are required, and the same two parameters feed `webauthn.controllers`
+below. They are declared once so the page and the endpoints cannot drift apart: the browser only
+learns the registration failed after it has already accepted the fingerprint, and a `404` at that
+point looks exactly like a refused key.
 
 `user_provider` defaults to `security.user.provider.concrete.app_user_provider`, and `template` to
 the page shipped here. Declare either only if yours differs.
@@ -110,8 +121,8 @@ webauthn:
             default:
                 profile: default
                 user_entity_guesser: Webauthn\Bundle\Security\Guesser\CurrentUserEntityGuesser
-                options_path: /passkey/register/options
-                result_path: /passkey/register
+                options_path: '%app.passkey_register_options_path%'
+                result_path: '%app.passkey_register_path%'
 ```
 
 The ceremony endpoints are served by a dedicated route loader, not by a routes file. Without this
@@ -201,8 +212,14 @@ A project using Tailwind has to declare them, since `vendor/` is not scanned:
 
 ```twig
 {# in your layout, or on the two pages that need it #}
+{{ importmap([], { nonce: csp_nonce('main') }) }}
 <script type="module" nonce="{{ csp_nonce('main') }}">import '{{ asset('bundles/mulertechpasskey/passkey.js') }}';</script>
 ```
+
+The asset imports `@simplewebauthn/browser` by name, and a bare specifier is only resolvable
+against an import map: a page carrying the module import without `importmap()` fails on
+`Failed to resolve module specifier "@simplewebauthn/browser"`. The empty entrypoint list renders
+the map and its preloads without pulling an application entrypoint into the page.
 
 ## Usage
 

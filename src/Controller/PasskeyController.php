@@ -29,6 +29,8 @@ final class PasskeyController extends AbstractController
         private readonly WebauthnCredentialRepository $credentials,
         private readonly TranslatorInterface $translator,
         private readonly string $template,
+        private readonly string $registerOptionsUrl,
+        private readonly string $registerUrl,
     ) {
     }
 
@@ -38,6 +40,10 @@ final class PasskeyController extends AbstractController
 
         return $this->render($this->template, [
             'credentials' => null !== $userEntity ? $this->credentials->findAllForUserEntity($userEntity) : [],
+            // The ceremony paths belong to the application, and the page has no business guessing
+            // them: a wrong one answers 404 at the click, long after this page was rendered.
+            'register_options_url' => $this->registerOptionsUrl,
+            'register_url' => $this->registerUrl,
         ]);
     }
 

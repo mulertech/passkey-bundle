@@ -23,14 +23,14 @@ final class MulerTechPasskeyBundleTest extends TestCase
 
     public function testExtensionAlias(): void
     {
-        $extension = $this->loadedExtension(['user_class' => 'App\Entity\User']);
+        $extension = $this->loadedExtension(self::config());
 
         self::assertSame('mulertech_passkey', $extension->getAlias());
     }
 
     public function testRegistersItsServices(): void
     {
-        $container = $this->load(['user_class' => 'App\Entity\User']);
+        $container = $this->load(self::config());
 
         self::assertTrue($container->hasDefinition(WebauthnCredentialRepository::class));
         self::assertTrue($container->hasDefinition('mulertech_passkey.user_entity_repository'));
@@ -43,7 +43,7 @@ final class MulerTechPasskeyBundleTest extends TestCase
 
     public function testCredentialRepositoryIsTaggedForDoctrine(): void
     {
-        $container = $this->load(['user_class' => 'App\Entity\User']);
+        $container = $this->load(self::config());
 
         // Doctrine indexe son localisateur de dépôts par identifiant de service : l'identifiant
         // doit être le nom de classe, sans quoi le dépôt reste introuvable au moment où Doctrine
@@ -55,10 +55,10 @@ final class MulerTechPasskeyBundleTest extends TestCase
 
     public function testUserClassAndProviderReachTheUserEntityRepository(): void
     {
-        $container = $this->load([
+        $container = $this->load(self::config([
             'user_class' => 'App\Entity\Member',
             'user_provider' => 'security.user.provider.concrete.members',
-        ]);
+        ]));
 
         $arguments = $container->getDefinition('mulertech_passkey.user_entity_repository')->getArguments();
 
@@ -68,7 +68,7 @@ final class MulerTechPasskeyBundleTest extends TestCase
 
     public function testTemplateDefaultsToTheOneShipped(): void
     {
-        $container = $this->load(['user_class' => 'App\Entity\User']);
+        $container = $this->load(self::config());
 
         self::assertSame(
             '@MulerTechPasskey/passkey/index.html.twig',
@@ -78,7 +78,7 @@ final class MulerTechPasskeyBundleTest extends TestCase
 
     public function testTemplateCanBeReplaced(): void
     {
-        $container = $this->load(['user_class' => 'App\Entity\User', 'template' => 'security/keys.html.twig']);
+        $container = $this->load(self::config(['template' => 'security/keys.html.twig']));
 
         self::assertSame(
             'security/keys.html.twig',
@@ -98,6 +98,31 @@ final class MulerTechPasskeyBundleTest extends TestCase
     }
 
     /**
+     * The ceremony paths belong to the application: guessing them would answer 404 at the click,
+     * after the browser has already accepted the fingerprint. The container refuses to compile
+     * instead.
+     */
+    public function testCeremonyUrlsAreRequired(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->load(['user_class' => 'App\Entity\User']);
+    }
+
+    public function testCeremonyUrlsReachTheController(): void
+    {
+        $container = $this->load(self::config([
+            'register_options_url' => '/admin/passkey/register/options',
+            'register_url' => '/admin/passkey/register',
+        ]));
+
+        $arguments = $container->getDefinition('mulertech_passkey.controller')->getArguments();
+
+        self::assertSame('/admin/passkey/register/options', $arguments['$registerOptionsUrl']);
+        self::assertSame('/admin/passkey/register', $arguments['$registerUrl']);
+    }
+
+    /**
      * The configuration tree accepts any scalar, so a value of the wrong type reaches the
      * extension. Refusing it when the container compiles beats a controller failing on a template
      * name that turns out to be an integer.
@@ -106,7 +131,7 @@ final class MulerTechPasskeyBundleTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $this->load(['user_class' => 42]);
+        $this->load(self::config(['user_class' => 42]));
     }
 
     public function testPrependsTheDoctrineMappingAndTheWebauthnRepositories(): void
@@ -127,6 +152,21 @@ final class MulerTechPasskeyBundleTest extends TestCase
         $webauthn = $container->getExtensionConfig('webauthn');
         self::assertSame(WebauthnCredentialRepository::class, $webauthn[0]['credential_repository']);
         self::assertSame(WebauthnUserEntityRepository::class, $webauthn[0]['user_repository']);
+    }
+
+
+    /**
+     * @param array<string, mixed> $overrides
+     *
+     * @return array<string, mixed>
+     */
+    private static function config(array $overrides = []): array
+    {
+        return $overrides + [
+            'user_class' => 'App\\Entity\\User',
+            'register_options_url' => '/passkey/register/options',
+            'register_url' => '/passkey/register',
+        ];
     }
 
     /**

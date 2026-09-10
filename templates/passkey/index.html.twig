@@ -39,8 +39,8 @@
 
     <div class="mt-6"
          data-passkey
-         data-passkey-register-options-url="{{ passkey_register_options_url|default('/passkey/register/options') }}"
-         data-passkey-register-url="{{ passkey_register_url|default('/passkey/register') }}"
+         data-passkey-register-options-url="{{ register_options_url }}"
+         data-passkey-register-url="{{ register_url }}"
          data-passkey-error-message="{{ 'passkey.error'|trans({}, 'MulerTechPasskeyBundle') }}"
          data-passkey-already-registered-message="{{ 'passkey.already_registered'|trans({}, 'MulerTechPasskeyBundle') }}">
         <button type="button" data-passkey-action="register"

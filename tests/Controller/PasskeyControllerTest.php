@@ -41,7 +41,11 @@ final class PasskeyControllerTest extends TestCase
         $twig = $this->createMock(Environment::class);
         $twig->expects(self::once())
             ->method('render')
-            ->with('@MulerTechPasskey/passkey/index.html.twig', ['credentials' => [$credential]])
+            ->with('@MulerTechPasskey/passkey/index.html.twig', [
+                'credentials' => [$credential],
+                'register_options_url' => '/passkey/register/options',
+                'register_url' => '/passkey/register',
+            ])
             ->willReturn('<html></html>');
 
         $controller = $this->controller($userEntities, $credentials, ['twig' => $twig]);
@@ -61,7 +65,9 @@ final class PasskeyControllerTest extends TestCase
         $twig = $this->createMock(Environment::class);
         $twig->expects(self::once())
             ->method('render')
-            ->with(self::anything(), ['credentials' => []])
+            ->with(self::anything(), self::callback(
+                static fn (array $context): bool => [] === $context['credentials'],
+            ))
             ->willReturn('<html></html>');
 
         $controller = $this->controller($userEntities, $this->createStub(WebauthnCredentialRepository::class), ['twig' => $twig]);
@@ -133,6 +139,8 @@ final class PasskeyControllerTest extends TestCase
             $credentials,
             $translator,
             '@MulerTechPasskey/passkey/index.html.twig',
+            '/passkey/register/options',
+            '/passkey/register',
         );
 
         $container = new Container();

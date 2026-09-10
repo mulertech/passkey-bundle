@@ -31,6 +31,16 @@ final class MulerTechPasskeyBundle extends AbstractBundle
                     ->cannotBeEmpty()
                     ->info('User provider service queried to find an account by its identifier.')
                 ->end()
+                ->scalarNode('register_options_url')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->info('Path of the registration options endpoint, as declared in webauthn.controllers.creation.')
+                ->end()
+                ->scalarNode('register_url')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->info('Path of the registration result endpoint, as declared in webauthn.controllers.creation.')
+                ->end()
                 ->scalarNode('template')
                     ->defaultValue('@MulerTechPasskey/passkey/index.html.twig')
                     ->cannotBeEmpty()
@@ -75,9 +85,13 @@ final class MulerTechPasskeyBundle extends AbstractBundle
         $userClass = $config['user_class'];
         $userProvider = $config['user_provider'];
         $template = $config['template'];
+        $registerOptionsUrl = $config['register_options_url'];
+        $registerUrl = $config['register_url'];
 
-        if (!\is_string($userClass) || !\is_string($userProvider) || !\is_string($template)) {
-            throw new \InvalidArgumentException('mulertech_passkey: user_class, user_provider and template must be strings.');
+        if (!\is_string($userClass) || !\is_string($userProvider) || !\is_string($template)
+            || !\is_string($registerOptionsUrl) || !\is_string($registerUrl)
+        ) {
+            throw new \InvalidArgumentException('mulertech_passkey: every option must be a string.');
         }
 
         $services = $container->services();
@@ -116,6 +130,8 @@ final class MulerTechPasskeyBundle extends AbstractBundle
                 '$credentials' => new Reference('mulertech_passkey.credential_repository'),
                 '$translator' => new Reference('translator'),
                 '$template' => $template,
+                '$registerOptionsUrl' => $registerOptionsUrl,
+                '$registerUrl' => $registerUrl,
             ]);
         $services->alias(PasskeyController::class, 'mulertech_passkey.controller')
             ->public();
