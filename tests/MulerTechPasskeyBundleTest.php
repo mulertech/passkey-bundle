@@ -97,6 +97,18 @@ final class MulerTechPasskeyBundleTest extends TestCase
         $this->load([]);
     }
 
+    /**
+     * The configuration tree accepts any scalar, so a value of the wrong type reaches the
+     * extension. Refusing it when the container compiles beats a controller failing on a template
+     * name that turns out to be an integer.
+     */
+    public function testRefusesAConfigurationValueThatIsNotAString(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->load(['user_class' => 42]);
+    }
+
     public function testPrependsTheDoctrineMappingAndTheWebauthnRepositories(): void
     {
         $container = $this->createContainer();

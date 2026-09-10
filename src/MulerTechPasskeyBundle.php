@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MulerTech\PasskeyBundle;
 
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use MulerTech\PasskeyBundle\Controller\PasskeyController;
 use MulerTech\PasskeyBundle\Repository\WebauthnCredentialRepository;
 use MulerTech\PasskeyBundle\Repository\WebauthnUserEntityRepository;
@@ -120,16 +119,5 @@ final class MulerTechPasskeyBundle extends AbstractBundle
             ]);
         $services->alias(PasskeyController::class, 'mulertech_passkey.controller')
             ->public();
-    }
-
-    public function build(ContainerBuilder $container): void
-    {
-        parent::build($container);
-
-        // The repository extends ServiceEntityRepository: without that class, container
-        // autoloading would fail on a dependency the project has not installed.
-        if (!class_exists(ServiceEntityRepository::class)) {
-            throw new \LogicException('mulertech/passkey-bundle requires doctrine/doctrine-bundle.');
-        }
     }
 }
