@@ -1,5 +1,15 @@
 # Release notes for passkey-bundle
 
+## v2.0.1 - 2026-09-10
+
+### Fixed
+
+- Passkey buttons stayed inert on a page reached through a DOM-replacing navigation (Turbo, and any morphing equivalent). The asset bound its listeners to the buttons present when the module was evaluated; on the next visit the body is replaced, and the module, already in the browser's module map, is never evaluated again. The new buttons were bound to nothing, so a click did nothing at all and no error was reported anywhere.
+
+A single delegated listener on the document now resolves the clicked button and its container, so the ceremonies survive whatever replaces the markup.
+
+No configuration change: upgrading from v2.0.0 is a `composer update`.
+
 ## v2.0.0 - 2026-09-10
 
 ### Breaking
@@ -21,6 +31,7 @@ mulertech_passkey:
     register_options_url: '%app.passkey_register_options_path%'
     register_url: '%app.passkey_register_path%'
 
+
 ```
 ```yaml
 # config/packages/webauthn.yaml
@@ -30,6 +41,7 @@ webauthn:
             default:
                 options_path: '%app.passkey_register_options_path%'
                 result_path: '%app.passkey_register_path%'
+
 
 ```
 The passkey_register_options_url and passkey_register_url Twig globals are no longer read: remove them.
