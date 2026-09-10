@@ -1,0 +1,13 @@
+includes:
+    - phpstan-baseline.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+
+parameters:
+    level: 9
+    paths:
+        - src
+    ignoreErrors:
+        # A trait shipped for consuming applications is used by none of them from inside the
+        # package. Analysed or not, it is the application that has to compile against it.
+        - message: '#Trait MulerTech\\PasskeyBundle\\Security\\WebauthnUserHandleTrait is used zero times and is not analysed\.#'
+          path: src/Security/WebauthnUserHandleTrait.php

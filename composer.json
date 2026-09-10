@@ -1,0 +1,54 @@
+{
+    "name": "mulertech/passkey-bundle",
+    "description": "Symfony bundle for passkey (WebAuthn) sign-in: credential storage, key management page and the ceremony asset",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "keywords": ["symfony", "passkey", "webauthn", "authentication", "security"],
+    "authors": [
+        {
+            "name": "Sébastien Muler",
+            "email": "sebastien.muler@mulertech.net"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "doctrine/doctrine-bundle": "^2.12 || ^3.0",
+        "doctrine/orm": "^3.0",
+        "symfony/config": "^6.4 || ^7.0 || ^8.0",
+        "symfony/dependency-injection": "^6.4 || ^7.0 || ^8.0",
+        "symfony/framework-bundle": "^6.4 || ^7.0 || ^8.0",
+        "symfony/http-foundation": "^6.4 || ^7.0 || ^8.0",
+        "symfony/http-kernel": "^6.4 || ^7.0 || ^8.0",
+        "symfony/security-http": "^6.4 || ^7.0 || ^8.0",
+        "symfony/translation": "^6.4 || ^7.0 || ^8.0",
+        "symfony/uid": "^6.4 || ^7.0 || ^8.0",
+        "web-auth/webauthn-symfony-bundle": "^5.3"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "mulertech/docker-dev": "^3.2",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpunit/phpunit": "^12.0",
+        "roave/security-advisories": "dev-latest",
+        "symfony/routing": "^6.4 || ^7.0 || ^8.0",
+        "twig/twig": "^3.0"
+    },
+    "suggest": {
+        "mulertech/passkey-bundle": "Serves the ceremony asset under a nonce policy without an inline block"
+    },
+    "autoload": {
+        "psr-4": {
+            "MulerTech\\PasskeyBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MulerTech\\PasskeyBundle\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable"
+}

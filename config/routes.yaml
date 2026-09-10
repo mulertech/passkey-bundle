@@ -1,0 +1,20 @@
+# Imported by the application, which picks its own prefix:
+#
+#     # config/routes/mulertech_passkey.yaml
+#     mulertech_passkey:
+#         resource: "@MulerTechPasskeyBundle/config/routes.yaml"
+#         prefix: /passkeys
+#
+# The ceremony paths are not here: web-auth/webauthn-symfony-bundle serves them, and the
+# application declares them in its own configuration.
+mulertech_passkey_index:
+    path: /
+    controller: MulerTech\PasskeyBundle\Controller\PasskeyController::index
+    methods: [GET]
+
+mulertech_passkey_delete:
+    path: /{id}/delete
+    controller: MulerTech\PasskeyBundle\Controller\PasskeyController::delete
+    methods: [POST]
+    requirements:
+        id: '\d+'

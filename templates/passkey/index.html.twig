@@ -1,0 +1,52 @@
+{#
+    The page carries Tailwind utility classes: every consumer of this bundle uses Tailwind, and
+    they are inert markup anywhere else, so the page stays readable either way. An application
+    wanting something else overrides this file in
+    templates/bundles/MulerTechPasskeyBundle/passkey/index.html.twig.
+
+    The `data-passkey-*` attributes are what the ceremony asset reads. The URLs come from the
+    application's own configuration, so they are passed in rather than written here.
+#}
+{% extends '@MulerTechPasskey/passkey/layout.html.twig' %}
+
+{% block passkey_content %}
+    <h1 class="mb-4 text-lg font-semibold">{{ 'passkey.title'|trans({}, 'MulerTechPasskeyBundle') }}</h1>
+
+    {% if credentials is empty %}
+        <p class="rounded-lg border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+            {{ 'passkey.empty'|trans({}, 'MulerTechPasskeyBundle') }}
+        </p>
+    {% else %}
+        <ul class="space-y-2">
+            {% for credential in credentials %}
+                <li class="flex items-center justify-between gap-3 rounded-lg bg-white px-4 py-3 shadow-sm">
+                    <span class="min-w-0">
+                        <span class="block truncate font-medium">{{ credential.label }}</span>
+                        <time datetime="{{ credential.createdAt|date('c') }}" class="text-xs text-slate-500">
+                            {{ credential.createdAt|date('d/m/Y') }}
+                        </time>
+                    </span>
+                    <form method="post" action="{{ path('mulertech_passkey_delete', {id: credential.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-passkey' ~ credential.id) }}">
+                        <button type="submit" class="text-sm font-medium text-red-700 hover:underline">
+                            {{ 'passkey.delete'|trans({}, 'MulerTechPasskeyBundle') }}
+                        </button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="mt-6"
+         data-passkey
+         data-passkey-register-options-url="{{ passkey_register_options_url|default('/passkey/register/options') }}"
+         data-passkey-register-url="{{ passkey_register_url|default('/passkey/register') }}"
+         data-passkey-error-message="{{ 'passkey.error'|trans({}, 'MulerTechPasskeyBundle') }}"
+         data-passkey-already-registered-message="{{ 'passkey.already_registered'|trans({}, 'MulerTechPasskeyBundle') }}">
+        <button type="button" data-passkey-action="register"
+                class="w-full rounded-lg border border-slate-800 px-4 py-2.5 text-base font-medium text-slate-800 transition hover:bg-slate-100">
+            {{ 'passkey.register'|trans({}, 'MulerTechPasskeyBundle') }}
+        </button>
+        <p data-passkey-status hidden class="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"></p>
+    </div>
+{% endblock %}

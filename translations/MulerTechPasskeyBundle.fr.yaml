@@ -1,0 +1,9 @@
+passkey:
+    title: Clés d'accès
+    empty: Aucune clé d'accès enregistrée.
+    register: Ajouter une clé d'accès
+    delete: Supprimer
+    error: La clé d'accès n'a pas pu être utilisée.
+    already_registered: Cette clé est déjà enregistrée sur votre compte.
+    flash:
+        deleted: Clé d'accès supprimée.

@@ -1,0 +1,9 @@
+passkey:
+    title: Passkeys
+    empty: No passkey registered yet.
+    register: Add a passkey
+    delete: Delete
+    error: The passkey could not be used.
+    already_registered: This key is already registered on your account.
+    flash:
+        deleted: Passkey deleted.
