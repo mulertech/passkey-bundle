@@ -71,10 +71,19 @@ final class MulerTechPasskeyBundle extends AbstractBundle
             ],
         ]);
 
-        $builder->prependExtensionConfig('webauthn', [
+        $webauthn = [
             'credential_repository' => WebauthnCredentialRepository::class,
             'user_repository' => WebauthnUserEntityRepository::class,
-        ]);
+        ];
+
+        // web-auth fills any block lacking this key with a default profile that sets the deprecated
+        // rp.name. The empty key spares the application declaring its profiles; one declaring none
+        // keeps the default profile it relies on.
+        if ([] !== array_column($builder->getExtensionConfig('webauthn'), 'creation_profiles')) {
+            $webauthn['creation_profiles'] = [];
+        }
+
+        $builder->prependExtensionConfig('webauthn', $webauthn);
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MulerTech\PasskeyBundle\Tests\Repository;
 
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -186,6 +187,11 @@ final class WebauthnCredentialRepositoryTest extends TestCase
         // PHP 8.4 makes lazy objects native; Doctrine still has to be told to use them rather
         // than the var-exporter ghosts it defaults to.
         $configuration->enableNativeLazyObjects(true);
+
+        // Available from ORM 3.8 with DBAL 4.5, above the lowest versions the bundle accepts.
+        if (method_exists($configuration, 'setUseSchemaEditorApi') && method_exists(Schema::class, 'edit')) {
+            $configuration->setUseSchemaEditorApi(true);
+        }
 
         // The parent class is mapped by XML inside web-auth, our entity by attributes: the chain
         // is what lets one inherit from the other.

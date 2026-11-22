@@ -2,6 +2,8 @@ name: Tests
 
 on:
   push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -25,6 +27,7 @@ jobs:
           # The repository suite runs against an in-memory SQLite schema. Windows runners ship no
           # pdo_sqlite unless it is asked for, and the failure only shows up there.
           extensions: pdo_sqlite
+          ini-values: error_reporting=E_ALL
           coverage: none
 
       - name: Install dependencies
@@ -50,13 +53,19 @@ jobs:
 
     steps:
       - name: Set git to use LF
-        run: git config --global core.autocrlf false
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
 
       - name: Checkout code
         uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
+        env:
+          # The Windows runner can hold a PHP older than the latest patch, which
+          # roave/security-advisories refuses as soon as that patch fixes a vulnerability.
+          update: true
         with:
           php-version: ${{ matrix.php }}
           # The repository suite runs against an in-memory SQLite schema. Windows runners ship no
@@ -69,7 +78,8 @@ jobs:
         with:
           composer-options: --prefer-stable --ignore-platform-req=ext-posix
 
-      - name: Check PHP version
+      - name: Check PHPUnit version
+        shell: bash
         run: vendor/bin/phpunit --version
 
       - name: Run tests
@@ -96,6 +106,7 @@ jobs:
         with:
           php-version: '8.4'
           extensions: pdo_sqlite
+          ini-values: error_reporting=E_ALL
           coverage: xdebug
 
       - name: Install dependencies

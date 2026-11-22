@@ -152,8 +152,27 @@ final class MulerTechPasskeyBundleTest extends TestCase
         $webauthn = $container->getExtensionConfig('webauthn');
         self::assertSame(WebauthnCredentialRepository::class, $webauthn[0]['credential_repository']);
         self::assertSame(WebauthnUserEntityRepository::class, $webauthn[0]['user_repository']);
+        self::assertArrayNotHasKey('creation_profiles', $webauthn[0]);
     }
 
+    /**
+     * Without the empty key, web-auth fills the prepended block with a default profile setting the
+     * deprecated rp.name, even though the application never wrote it.
+     */
+    public function testPrependedBlockLeavesTheProfilesOfTheApplicationAlone(): void
+    {
+        $container = $this->createContainer();
+        $container->prependExtensionConfig('webauthn', [
+            'creation_profiles' => ['default' => ['rp' => ['id' => 'example.test']]],
+        ]);
+        $this->bundle->build($container);
+
+        $extension = $this->bundle->getContainerExtension();
+        self::assertNotNull($extension);
+        $extension->prepend($container);
+
+        self::assertSame([], $container->getExtensionConfig('webauthn')[0]['creation_profiles']);
+    }
 
     /**
      * @param array<string, mixed> $overrides
