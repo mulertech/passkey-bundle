@@ -1,5 +1,25 @@
 # Release notes for passkey-bundle
 
+## v2.0.2 - 2026-11-22
+
+### Fixed
+
+- Every application using the bundle got a deprecation on `webauthn.creation_profiles.default.rp.name` when its container compiled, even though it never set that option. `web-auth/webauthn-symfony-bundle` fills any configuration block lacking `creation_profiles` with a default profile that sets `rp.name`, and the block this bundle prepends had no such key.
+
+The prepended block now carries an empty `creation_profiles` when the application declares its own profiles. An application declaring none keeps the default profile from web-auth.
+
+### Upgrading
+
+`composer update mulertech/passkey-bundle` is enough, with no required configuration change.
+
+To clear the deprecation entirely, every other `webauthn` block of the application needs the key too, typically the one under `when@dev`:
+
+    when@dev:
+        webauthn:
+            creation_profiles: {}
+            allowed_origins:
+                - '%env(WEBAUTHN_ALLOWED_ORIGIN)%'
+    
 ## v2.0.1 - 2026-09-10
 
 ### Fixed
@@ -32,6 +52,7 @@ mulertech_passkey:
     register_url: '%app.passkey_register_path%'
 
 
+
 ```
 ```yaml
 # config/packages/webauthn.yaml
@@ -41,6 +62,7 @@ webauthn:
             default:
                 options_path: '%app.passkey_register_options_path%'
                 result_path: '%app.passkey_register_path%'
+
 
 
 ```
